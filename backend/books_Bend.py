@@ -10,5 +10,5 @@ connection = mysql.connector.connect(
     host="localhost",
     user="root",
     password="mysql12",
-    database="lms2"
+    database="lms"
 )
