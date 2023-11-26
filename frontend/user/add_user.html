@@ -31,7 +31,7 @@
                             User
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="add_user.html">Add User</a></li>
+                            <li><a class="dropdown-item" href="create_user.html">Add User</a></li>
                             <li><a class="dropdown-item" href="edit_user.html">Edit User</a></li>
                             <li><a class="dropdown-item" href="delete_user.html">Delete User</a></li>
                         </ul>
@@ -97,11 +97,11 @@
 </nav>
 
 <div class="container" style="padding-top: 30px">
-    <div class="row justify-content-center ">
-        <div class="col-4 text-center">
+    <div class="row justify-content-center " >
+        <div class="col-4 text-center" style="padding-top: 100px">
             <div class="xs-1">
                 <label for="user_name" class="form-label">User Name</label>
-                <input class="form-control" id="user_name" placeholder="Enter ur name">
+                <input class="form-control" id="user_name" placeholder="Enter ur Name">
             </div>
             <div class="xs-1">
                 <label for="age" class="form-label">Age</label>
@@ -116,8 +116,8 @@
                     <option value="Other">Other</option>
                 </select>
             </div>
-            <div style="padding-top: 10px">
-                <button type="button" class="btn btn-success" onclick="create_user()">Create User</button>
+            <div style="padding-top: 30px">
+                <button type="button" class="btn btn-success" onclick="create_user()">Add User</button>
             </div>
             <div class="toast-container position-fixed bottom-3  end-4 p-3 ">
                 <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -131,7 +131,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-8">
+        <div class="col-8" style="padding-top: 30px">
         <table class="table table-dark table-striped">
             <tr>
                 <th scope="col">User Id</th>
@@ -150,14 +150,13 @@
 
 </div>
 
-
-
-
-
-
 </body>
 
 <script>
+
+    window.onload = function (){
+        get_users(-1)
+    }
 
     function toast_message(message) {
     const toastLiveExample = document.getElementById('liveToast')
@@ -181,7 +180,7 @@
         headers:{ 'content-Type':'application/json'},
         body: JSON.stringify({
         user_name:user_name,
-        age:parseInt(age),
+        age:age,
         gender:gender
         })
         }
@@ -189,9 +188,73 @@
         fetch('http://localhost:8000/create_user',user_data)
             .then(response => response.json())
             .then(data => {
-              toast_message(data)
-              clear_form()
+                toast_message(data)
+                clear_form()
+                clear_table()
+                get_users(-1)
+
             })
+    }
+
+   function get_users(id){
+        clear_table()
+        if (id == -1) {
+            var user_id = -1
+        }
+        else {
+            var user_id = document.getElementById('user_id').value
+        }
+
+        fetch("http://localhost:8000/get_users/"+ user_id)
+            .then((response)=>response.json())
+            .then((json) =>
+                {   if (json=== "User not found")
+                {
+                    var table = document.getElementById('user_table_body')
+                    var row = document.createElement("tr")
+                    var cell =  document.createElement("td")
+                    cell.textContent = "User not found"
+                    row.appendChild(cell)
+                    table.appendChild(row)
+                }
+                else {
+                    if (Array.isArray(json))
+                    {
+                        json.forEach(obj => {
+                            var table = document.getElementById('user_table_body')
+                            var row = document.createElement("tr")
+                            Object.values(obj).forEach((v) => {
+                                var cell = document.createElement("td")
+                                cell.textContent = v
+                                row.appendChild(cell)
+                            })
+                            table.appendChild(row)
+                        })
+                    }
+                    else
+                    {
+                        var table = document.getElementById('user_table_body')
+                        var row = document.createElement("tr")
+                        Object.values(json).forEach((v) => {
+                            var cell = document.createElement("td")
+                            cell.textContent = v
+                            row.appendChild(cell)
+                        })
+                        table.appendChild(row)
+
+                    }
+                }
+                }
+            )
+
+    }
+
+
+
+    function clear_table(){
+        const parent = document.getElementById("user_table_body")
+        while(parent.firstChild)
+            parent.removeChild(parent.firstChild)
     }
 
 </script>

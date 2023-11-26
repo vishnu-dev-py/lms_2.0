@@ -64,7 +64,7 @@
             <ul class="navbar-nav">
                 <li class="nav-item dropdown">
                     <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        Membership Management
+                        Membership Manauthorment
                     </button>
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item" href="../membership/issue.html">Issue </a></li>
@@ -82,7 +82,7 @@
             <ul class="navbar-nav">
                 <li class="nav-item dropdown">
                     <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        Fine Management
+                        Fine Manauthorment
                     </button>
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item" href="../fine/pay_fine.html">Pay Fine</a></li>
@@ -99,7 +99,7 @@
 
 <div class="container" style="padding-top: 30px">
     <div class="row justify-content-center">
-        <div class="col-6 text-center">
+        <div class="col-4 text-center" style="padding-top: 130px">
             <div class="xs-1">
                 <label for="book_title" class="form-label">Title</label>
                 <input class="form-control" id="book_title" placeholder="Enter ur Book Title">
@@ -115,17 +115,140 @@
             <div style="padding-top: 10px">
                 <button type="button" class="btn btn-success" onclick="add_book()">Add Book</button>
             </div>
+            <div class="toast-container position-fixed bottom-3  end-4 p-3 ">
+                <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="me-auto">Message</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body" id="toast_message">
+                        Student Created!
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-8">
+            <table class="table table-dark table-striped">
+                <tr>
+                    <th scope="col">Book Id</th>
+                    <th scope="col">Book Title</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Stock</th>
+                    <th scope="col">Availability</th>
+                </tr>
+                <tbody id="book_table_body">
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-
-<h1>Add Book</h1>
 </body>
 <script>
-    function add_book(){
-    var b_title = document.getElementById('book_title').value
+
+    window.onload = function (){
+        get_books(-1)
     }
+
+    function toast_message(message) {
+    const toastLiveExample = document.getElementById('liveToast')
+    document.getElementById('toast_message').innerText = message
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+    toastBootstrap.show()
+  }
+
+  function clear_form() {
+    document.getElementById("book_title").value = ""
+    document.getElementById("author").value = ""
+    document.getElementById("stock").value = ""
+  }
+
+    function add_book(){
+        var book_title = document.getElementById("book_title").value
+        var author = document.getElementById("author").value
+        var stock = document.getElementById("stock").value
+        var book_data={
+        method:'POST',
+        headers:{ 'content-Type':'application/json'},
+        body: JSON.stringify({
+        book_title:book_title,
+        author:author,
+        stock:stock
+        })
+        }
+
+        fetch('http://localhost:8000/add_book',book_data)
+            .then(response => response.json())
+            .then(data => {
+                toast_message(data)
+                clear_form()
+                clear_table()
+                get_books(-1)
+
+            })
+    }
+
+    function get_books(id){
+        clear_table()
+        if (id == -1) {
+            var book_id = -1
+        }
+        else {
+            var book_id = document.getElementById('book_id').value
+        }
+
+        fetch("http://localhost:8000/get_books/"+ book_id+ "/1")
+            .then((response)=>response.json())
+            .then((json) =>
+                {   if (json=== "Book not found")
+                {
+                    var table = document.getElementById('book_table_body')
+                    var row = document.createElement("tr")
+                    var cell =  document.createElement("td")
+                    cell.textContent = "Book not found"
+                    row.appendChild(cell)
+                    table.appendChild(row)
+                }
+                else {
+                    if (Array.isArray(json))
+                    {
+                        json.forEach(obj => {
+                            var table = document.getElementById('book_table_body')
+                            var row = document.createElement("tr")
+                            Object.values(obj).forEach((v) => {
+                                var cell = document.createElement("td")
+                                cell.textContent = v
+                                row.appendChild(cell)
+                            })
+                            table.appendChild(row)
+                        })
+                    }
+                    else
+                    {
+                        var table = document.getElementById('book_table_body')
+                        var row = document.createElement("tr")
+                        Object.values(json).forEach((v) => {
+                            var cell = document.createElement("td")
+                            cell.textContent = v
+                            row.appendChild(cell)
+                        })
+                        table.appendChild(row)
+
+                    }
+                }
+                }
+            )
+
+    }
+
+
+
+    function clear_table(){
+        const parent = document.getElementById("book_table_body")
+        while(parent.firstChild)
+            parent.removeChild(parent.firstChild)
+    }
+
 </script>
 
 </html>
