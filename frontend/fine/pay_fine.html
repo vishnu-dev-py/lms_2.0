@@ -96,6 +96,155 @@
     </div>
 
 </nav>
-<h1>Pay Fine</h1>
+
+<div class="container" style="padding-top: 10px">
+    <div class="row justify-content-center">
+        <div class="col-4 text-center" style="padding-top: 10px">
+            <div class="xs-1">
+                <label for="user_id" class="form-label">Title</label>
+                <input class="form-control" id="user_id" placeholder="user id" onchange="get_fine()">
+            </div>
+            <div class="xs-1">
+                <label for="fine_amount" class="form-label">Fine Amount</label>
+                <input class="form-control" id="fine_amount" placeholder="fine_amount">
+            </div>
+            <div style="padding-top: 10px">
+                <button type="button" class="btn btn-success" onclick="pay_fine()">Pay</button>
+            </div>
+            <div class="toast-container position-fixed bottom-0  end-0 p-3 ">
+                <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="me-auto">Message</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body" id="toast_message">
+                        Student Created!
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-8">
+            <table class="table table-dark table-striped">
+                <tr>
+                    <th scope="col">User Id</th>
+                    <th scope="col">User Name</th>
+                    <th scope="col">age</th>
+                    <th scope="col">gender</th>
+                </tr>
+                <tbody id="user_table_body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="toast-container position-fixed bottom-0  end-0 p-3 ">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Payment Alert</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast_message">
+            Student Created!
+        </div>
+    </div>
+</div>
 </body>
+<script>
+    window.onload = function () {
+        get_users(-1)
+    }
+    function toast_message(message) {
+        const toastLiveExample = document.getElementById('liveToast')
+        document.getElementById('toast_message').innerText = message
+        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+        toastBootstrap.show()
+    }
+
+    function clear_table(){
+        const parent = document.getElementById("user_table_body")
+        while(parent.firstChild)
+            parent.removeChild(parent.firstChild)
+    }
+    function clear_form() {
+        document.getElementById("user_id").value = ""
+        document.getElementById("fine_amount").value = ""
+    }
+    function get_users(id){
+        clear_table()
+        if (id == -1) {
+            var user_id = -1
+        }
+        else {
+            var user_id = document.getElementById('user_id').value
+        }
+
+        fetch("http://localhost:8000/get_users/"+ user_id + "/0")
+            .then((response)=>response.json())
+            .then((json) =>
+                {   if (json=== "User not found")
+                {
+                    var table = document.getElementById('user_table_body')
+                    var row = document.createElement("tr")
+                    var cell =  document.createElement("td")
+                    cell.textContent = "User not found"
+                    row.appendChild(cell)
+                    table.appendChild(row)
+                }
+                else {
+                    if (Array.isArray(json))
+                    {
+                        json.forEach(obj => {
+                            var table = document.getElementById('user_table_body')
+                            var row = document.createElement("tr")
+                            delete obj.status
+                            delete obj.fine_amount
+                            delete obj.book_limit
+                            Object.values(obj).forEach((v) => {
+                                var cell = document.createElement("td")
+                                cell.textContent = v
+                                row.appendChild(cell)
+                            })
+                            table.appendChild(row)
+                        })
+                    }
+                    else
+                    {
+                        var table = document.getElementById('user_table_body')
+                        var row = document.createElement("tr")
+                        delete json.status
+                        delete json.fine_amount
+                        delete json.book_limit
+                        Object.values(json).forEach((v) => {
+                            var cell = document.createElement("td")
+                            cell.textContent = v
+                            row.appendChild(cell)
+                        })
+                        table.appendChild(row)
+
+                    }
+                }
+                }
+            )
+
+    }
+
+    function get_fine() {
+        var user_id = document.getElementById("user_id").value
+        fetch("http://localhost:8000/get_fine/"+ user_id)
+            .then((response)=>response.json())
+            .then((json) => {
+                document.getElementById("fine_amount").value = json
+            })
+    }
+
+    function pay_fine() {
+        var user_id = document.getElementById("user_id").value
+        fetch("http://localhost:8000/pay_fine/"+ user_id)
+            .then((response)=>response.json())
+            .then((json) => {
+                toast_message(json)
+                clear_form()
+            })
+    }
+</script>
 </html>

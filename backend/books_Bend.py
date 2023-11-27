@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Body, APIRouter
+from fastapi import FastAPI, Body, APIRouter, Request
 from typing import Dict
 from fastapi.encoders import jsonable_encoder
 import mysql.connector
@@ -53,9 +53,9 @@ async def edit_book(book_data:dict=Body(...)):
 
     
 @router.get("/get_books/{book_id}/{availability}")
-async def get_books(book_id = -1,availability = 0):
+async def get_books(request: Request,book_id = -1,availability = 0):
     try:
-        cursor = connection.cursor()
+        cursor = request.app.mysql.cursor()
         if availability == 0:
             if int(book_id) == -1:
                 statement = "select * from books"

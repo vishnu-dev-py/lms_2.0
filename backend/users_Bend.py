@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Body, APIRouter
+from fastapi import FastAPI, Body, APIRouter, Request
 from typing import Dict
 from fastapi.encoders import jsonable_encoder
 import mysql.connector
@@ -51,10 +51,10 @@ async def delete_user(user_id):
        return "User Not Deleted"
 
 @router.get("/get_users/{user_id}/{status}")
-async def get_users(user_id = -1, status = 0):
+async def get_users(request: Request,user_id = -1, status = 0):
     try:
         if status == 0:
-            cursor = connection.cursor()
+            cursor = request.app.mysql.cursor()
             if int(user_id) == -1:
                 statement = "select * from users"
                 cursor.execute(statement)
@@ -74,7 +74,7 @@ async def get_users(user_id = -1, status = 0):
                 else:
                     return "User not found"
         else:
-            cursor = connection.cursor()
+            cursor = request.app.mysql.cursor()
             statement = "select * from users where status = 1"
             cursor.execute(statement)
 

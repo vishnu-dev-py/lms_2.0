@@ -118,40 +118,51 @@
         </div>
         <div class="col-6">
             <div class="row justify-content">
-            <div class="col-12">
-                <table class="table table-dark table-striped">
-                <thead>Users</thead>
-                <tr>
-                    <th scope="col">User Id</th>
-                    <th scope="col">User Name</th>
-                    <th scope="col">Gender</th>
-                    <th scope="col">Book Limit</th>
-                    <th scope="col">Fine Amount</th>
-                    <th scope="col">Fine Amount</th>
-                    <th scope="col">Status</th>
-                </tr>
-                <tbody id="user_table_body">
-                </tbody>
-            </table>
+                <div class="col-12">
+                    <table class="table table-dark table-striped">
+                        <thead>Users</thead>
+                        <tr>
+                            <th scope="col">User Id</th>
+                            <th scope="col">User Name</th>
+                            <th scope="col">Gender</th>
+                            <th scope="col">Book Limit</th>
+                            <th scope="col">Fine Amount</th>
+                            <th scope="col">Fine Amount</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                        <tbody id="user_table_body">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-12">
+                    <table class="table table-dark table-striped">
+                        <thead>Books</thead>
+                        <tr>
+                            <th scope="col">Book Id</th>
+                            <th scope="col">Book Title</th>
+                            <th scope="col">Author</th>
+                            <th scope="col">Stock</th>
+                            <th scope="col">Availability</th>
+                        </tr>
+                        <tbody id="book_table_body">
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="col-12">
-                <table class="table table-dark table-striped">
-                    <thead>Books</thead>
-                <tr>
-                    <th scope="col">Book Id</th>
-                    <th scope="col">Book Title</th>
-                    <th scope="col">Author</th>
-                    <th scope="col">Stock</th>
-                    <th scope="col">Availability</th>
-                </tr>
-                <tbody id="book_table_body">
-                </tbody>
-            </table>
-            </div>
-        </div>
         </div>
     </div>
 </div>
+<div class="toast-container position-fixed bottom-0  end-0 p-3 ">
+                <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="me-auto">Message</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body" id="toast_message">
+                        Student Created!
+                    </div>
+                </div>
+            </div>
 </body>
 
 <script>
@@ -200,9 +211,47 @@
             })
 
     }
-
+    function clear_form() {
+        document.getElementById("user_id").value = ""
+        document.getElementById("book_id").value = ""
+        document.getElementById("issue_date").value = ""
+    }
+    function clear_table(table_body){
+        const parent = document.getElementById(table_body)
+        while(parent.firstChild)
+            parent.removeChild(parent.firstChild)
+    }
+    function toast_message(message) {
+        const toastLiveExample = document.getElementById('liveToast')
+        document.getElementById('toast_message').innerText = message
+        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+        toastBootstrap.show()
+    }
     function issue() {
-        console.log(document.getElementById("issue_date").value)
+
+        var user_id = document.getElementById('user_id').value
+        var book_id = document.getElementById('book_id').value
+        var issue_date = document.getElementById("issue_date").value
+        var issue_data = {
+            method:'POST',
+            headers:{ 'content-Type':'application/json'},
+            body: JSON.stringify({
+                user_id: user_id,
+                book_id: book_id,
+                issue_date: issue_date
+            })
+        }
+
+        fetch('http://localhost:8000/issue_book',issue_data)
+            .then(response => response.json())
+            .then(data => {
+                toast_message(data)
+                clear_form()
+                clear_table("book_table_body")
+                clear_table("user_table_body")
+                get_users()
+                get_books()
+            })
     }
 </script>
 </html>

@@ -115,7 +115,7 @@
             <div style="padding-top: 10px">
                 <button type="button" class="btn btn-success" onclick="add_book()">Add Book</button>
             </div>
-            <div class="toast-container position-fixed bottom-3  end-4 p-3 ">
+            <div class="toast-container position-fixed bottom-0  end-0 p-3 ">
                 <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
                     <div class="toast-header">
                         <strong class="me-auto">Message</strong>
@@ -151,30 +151,30 @@
     }
 
     function toast_message(message) {
-    const toastLiveExample = document.getElementById('liveToast')
-    document.getElementById('toast_message').innerText = message
-    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
-    toastBootstrap.show()
-  }
+        const toastLiveExample = document.getElementById('liveToast')
+        document.getElementById('toast_message').innerText = message
+        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+        toastBootstrap.show()
+    }
 
-  function clear_form() {
-    document.getElementById("book_title").value = ""
-    document.getElementById("author").value = ""
-    document.getElementById("stock").value = ""
-  }
+    function clear_form() {
+        document.getElementById("book_title").value = ""
+        document.getElementById("author").value = ""
+        document.getElementById("stock").value = ""
+    }
 
     function add_book(){
         var book_title = document.getElementById("book_title").value
         var author = document.getElementById("author").value
         var stock = document.getElementById("stock").value
         var book_data={
-        method:'POST',
-        headers:{ 'content-Type':'application/json'},
-        body: JSON.stringify({
-        book_title:book_title,
-        author:author,
-        stock:stock
-        })
+            method:'POST',
+            headers:{ 'content-Type':'application/json'},
+            body: JSON.stringify({
+                book_title:book_title,
+                author:author,
+                stock:stock
+            })
         }
 
         fetch('http://localhost:8000/add_book',book_data)
